@@ -33,9 +33,12 @@ def q_game():
     sys.exit()
 
 
-def draw_txt(surf, txt, ft, color, pos, anchor="topleft"):
+def draw_txt(surf, txt, ft, color, pos, anchor="topleft", max_w=None):
     # draw txt; anchor for which point of the txt at (topleft, center,...)
     img = ft.render(txt, True, color)
+    if max_w and img.get_width() > max_w:
+        scale = max_w / img.get_width()
+        img = pygame.transform.smoothscale(img, (round(max_w), max(1, round(img.get_height()*scale))))
     surf.blit(img, img.get_rect(**{anchor: pos}))
 
 
@@ -83,6 +86,8 @@ RARITY_C = {
 HUNT_T = 40  # second/hunt
 BIRD_R = 22  # bird circle on hunting screen
 HIT_R = BIRD_R + 8  # how close for click
+SAVE_F = os.path.join(BASE_D,"save.json")
+REP_FACT = 0.5 #if a bird has been photo'd before coins = 0.5
 
 if not os.path.exists(MAP_F):
     raise SystemExit(f"Map image not found. Save your map as: {MAP_F}")
@@ -92,18 +97,45 @@ map_i = pygame.transform.smoothscale(
     _raw_map, (round(_raw_map.get_width() * MAP_S), MAP_H)
 )
 
+#Saves
+def load_save():
+    data = {"coins": 0, "collected": {}}
+    if os.path.exists(SAVE_F):
+        try:
+            with open(SAVE_F, "r", encoding="utf-8") as f:
+                data.update(json.load(f))
+        except(OSError, ValueError):
+            print("Could not read save.json, starting fresh")
+    return data
+
+def write_s():
+    try: 
+        with open(SAVE_F, "w", encoding="utf-8") as f:
+            json.dump(save,f,indent=2)
+    except OSError:
+        print("Couldn't write save.json")
+
+save = load_save()
+
+def dw_coin_count(surf):
+    draw_txt(surf, f"Bird coins: {save['coins']}", ft_mid, (255,220,90), (W-20,16), "topright")
+        
 # Hints/Help
 _icon_cache = {}
 
 
-def get_i(bird, size):
-    key = (bird["name"], size)
+def get_i(burd, size, locked=False):
+    key = (burd["name"], size, locked)
     if key not in _icon_cache:
         surf = pygame.Surface((size, size), pygame.SRCALPHA)
-        color = RARITY_C.get(bird["rarity"], (150, 150, 150))
-        pygame.draw.circle(surf, color, (size // 2, size // 2), size // 2)
-        initials = "".join(word[0] for word in bird["name"].split()[:2]).upper()
-        txt = ft_tiny.render(initials, True, (20, 20, 20))
+        if locked: 
+            pygame.draw.circle(surf, (40,40,45), (size//2, size//2), size//2)
+            txt = ft_mid.render("?", True, (110,110,120))
+        else:
+            color = RARITY_C.get(burd["rarity"], (150, 150, 150))
+            pygame.draw.circle(surf, color, (size // 2, size // 2), size // 2)
+            initials = "".join(word[0] for word in burd["name"].split()[:2]).upper()
+            txt = ft_tiny.render(initials, True, (20, 20, 20))
         surf.blit(txt, txt.get_rect(center=(size // 2, size // 2)))
         _icon_cache[key] = surf
     return _icon_cache[key]
@@ -135,7 +167,7 @@ def random_st(taken, min_gap=90):
         pos = (random.randint(60, W - 60), random.randint(140, H - 60))
         if all(math.dist(pos, other) > min_gap for other in taken):
             break
-        return pos
+    return pos
 
 
 # button
@@ -202,13 +234,13 @@ class Scene:
         pass
 
 
-class MenuS:
+class MenuS(Scene):
     def __init__(self):
         x, w = W // 2 - 130, 260
         self.btns = [
             btn((x, 200, w, 56), "Go Birdwatching", lambda: change_sc(MapS())),
             btn(
-                (x, 275, w, 56), "Collection", lambda: change_sc(ComingSS("Collection"))
+                (x, 275, w, 56), "Collection", lambda: change_sc(CollectS())
             ),
             btn((x, 350, w, 56), "Shop", lambda: change_sc(ComingSS("Shop"))),
             btn((x, 425, w, 56), "Quit", q_game),
@@ -241,9 +273,10 @@ class MenuS:
         )
         for btn in self.btns:
             btn.draw(surf)
+        dw_coin_count(surf)
 
 
-class ComingSS:
+class ComingSS(Scene):
     def __init__(self, name, back_to=None):
         self.name = name
         self.back_to = back_to or MenuS
@@ -269,7 +302,7 @@ class ComingSS:
         self.back.draw(surf)
 
 
-class MapS:
+class MapS(Scene):
     MARK_R = 9
 
     def __init__(self):
@@ -342,10 +375,11 @@ class MapS:
                 surf, "its spots. Grey Marker", ft_tiny, (150, 170, 180), (725, 134)
             )
             draw_txt(surf, "no spots yet :[", ft_tiny, (150, 170, 180), (725, 158))
+        dw_coin_count(surf)
         self.back.draw(surf)
 
 
-class StateS:
+class StateS(Scene):
     # listing the place in 1 state
     def __init__(self, state):
         self.state = state
@@ -392,8 +426,62 @@ class StateS:
         )
         for button in self.btns:
             button.draw(surf)
+        dw_coin_count(surf)
         self.back.draw(surf)
 
+class CollectS(Scene):
+    #burd act as card a "?" until you photo'd it
+    CARD_W,CARD_H,COLS,GAP = 120,132,7,6
+    TOP, BOTTOM = 100, H-70
+
+    def __init__(self):
+        self.scroll = 0
+        self.back = btn((20,H-60,140,44), "Back", lambda: change_sc(MenuS()))
+        rows = math.ceil(len(m_burds)/self.COLS)
+        self.max_scroll = max(0,rows*(self.CARD_H + self.GAP) - (self.BOTTOM - self.TOP))
+
+    def scroll_by(self, amount):
+        self.scroll = max(0, min(self.max_scroll, self.scroll + amount))
+
+    def handle_evt(self, event):
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_ESCAPE:
+                change_sc(MenuS())
+            elif event.key == pygame.K_DOWN:
+                self.scroll_by(40)
+            elif event.key == pygame.K_UP:
+                self.scroll_by(-40)
+        if event.type == pygame.MOUSEWHEEL:
+            self.scroll_by(-event.y*40) #wheel up = pos y = scroll up
+        self.back.handle_evt(event)
+    def draw(self,surf):
+        surf.fill((30,45,60))
+        owned = sum(1 for burd in m_burds if burd["name"] in save["collected"])
+        draw_txt(surf, f"Collection {owned}/{len(m_burds)}", ft_big, WHITE, (20,16))
+        draw_txt(surf, "Scroll with the mouse wheel", ft_tiny, (150,170,185), (22,72))
+        dw_coin_count(surf)
+
+        x0 = (W-(self.COLS*(self.CARD_W+self.GAP)-self.GAP))//2
+        surf.set_clip(pygame.Rect(0,self.TOP, W, self.BOTTOM - self.TOP)) #draw inside area
+        for i, burd in enumerate(m_burds):
+            x = x0 + (i% self.COLS)*(self.CARD_W+self.GAP)
+            y = self.TOP+(i//self.COLS)*(self.CARD_H+self.GAP) - self.scroll
+            if y + self.CARD_H<self.TOP or y > self.BOTTOM:
+                continue
+            ct = save["collected"].get(burd["name"],0)
+            hab = ct > 0
+            r_c = RARITY_C.get(burd["rarity"], WHITE)
+            card = pygame.Rect(x,y,self.CARD_W, self.CARD_H)
+            pygame.draw.rect(surf,(45,60,78), card, border_radius=8)
+            pygame.draw.rect(surf, r_c if hab else (70,80,95), card, 2, border_radius=8)
+            surf.blit(get_i(burd,64,locked=not hab), (x + (self.CARD_W - 64)//2, y+8))
+
+            centre_x = x + self.CARD_W//2
+            draw_txt(surf,burd["name"] if hab else "???", ft_tiny, WHITE if hab else (120,130,145), (centre_x,y+92), "center", max_w=self.CARD_W-8)
+            if hab:
+                draw_txt(surf, f"Tier {burd['rarity']} x{ct}", ft_tiny, r_c, (centre_x, y +114),"center", max_w=self.CARD_W - 8)
+        surf.set_clip(None)
+        self.back.draw(surf)
 
 class HuntS(Scene):
     def __init__(self, place, back_state):
@@ -404,6 +492,7 @@ class HuntS(Scene):
         self.state = "playing"
         self.t = 0.0  # bobbing motion
         self.earned = 0
+        self.new_burds = [] #photo'd for 1st time
         self.flash = 0.0  # camera flash, cd to 0
         self.floats = []
 
@@ -432,7 +521,7 @@ class HuntS(Scene):
     def finish(self):
         self.state = "done"
 
-    def bird_pos(self, target):
+    def burd_pos(self, target):
         # where burd drawn rn (bobs up n down)
         x, y = target["pos"]
         return (x, y + math.sin(self.t * 2 + target["bob"]) * 3)
@@ -440,13 +529,20 @@ class HuntS(Scene):
     def photograph(self, target):
         burd = target["bird"]
         target["found"] = True
-        gain = burd["points"]
+        firs_time = burd["name"] not in save["collected"]
+        points = int(burd["points"])
+        gain = points if firs_time else int(points* REP_FACT)
+        save["collected"][burd["name"]] = save["collected"].get(burd["name"],0)+1
+        save ["coins"] += gain
+        write_s()
         self.earned += gain
+        if firs_time:
+            self.new_burds.append(burd["name"])
         self.flash = 0.25
         x, y = self.burd_pos(target)
         self.floats.append(
             {
-                "text": f"+{gain}",
+                "text": f"+{gain}" + (" NEW!" if firs_time else ""),
                 "x": x,
                 "y": y,
                 "life": 1.2,
@@ -473,7 +569,7 @@ class HuntS(Scene):
             for target in self.targets:
                 if target["found"]:
                     continue
-                d = math.disc(event.pos, self.bird_pos(target))
+                d = math.dist(event.pos, self.burd_pos(target))
                 if d <= best_dist:  # closest bird wins
                     best, best_dist = target, d
             if best:
@@ -489,7 +585,7 @@ class HuntS(Scene):
 
         if self.state == "playing":
             self.time_left -= dt
-            if self.time_left >= 0:
+            if self.time_left <= 0:
                 self.time_left = 0
                 self.finish()
 
@@ -497,7 +593,7 @@ class HuntS(Scene):
         surf.blit(self.background, (0, 0))
 
         for target in self.targets:
-            x, y = self.bird_pos(target)
+            x, y = self.burd_pos(target)
             surf.blit(
                 get_i(target["bird"], BIRD_R * 2),
                 (round(x - BIRD_R), round(y - BIRD_R)),
@@ -516,6 +612,7 @@ class HuntS(Scene):
             surf.blit(get_i(target["bird"], 44), (icon_x, 42))
             if target["found"]:
                 pygame.draw.circle(surf, (80, 255, 120), (icon_x + 22, 64), 25, 3)
+        dw_coin_count(surf)
         draw_txt(
             surf,
             f"Time: {math.ceil(self.time_left)}",
@@ -565,6 +662,8 @@ class HuntS(Scene):
                 (W // 2, H // 2 - 10),
                 "center",
             )
+            if self.new_burds:
+                draw_txt(surf, "New: "+", ".join(self.new_burds), ft_smol, (150,255,170), (W//2, H//2 +30), "center")
             self.continue_btn.draw(surf)
 
 

@@ -126,3 +126,6 @@ if __name__ == "__main__":
                 total += 1
         mix = {t: f"{100 *cts[t]/total:.1f}%" for t in TIER_ORDER if t in cts}
         print(f" luck {luck}: {mix}")
+    for b in m_burds:
+        if not isinstance(b["points"], int):
+            print("[warning] points is not a number for", b["name"], repr(b["points"]))
