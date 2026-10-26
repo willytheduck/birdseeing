@@ -1,7 +1,7 @@
 m_burds = [
     # F tier
     {
-        "name": "Yellow-vented Bulbul",
+        "name": "Yellow vented Bulbul",
         "scientific": "Pycnonotus goiavier",
         "rarity": "F",
         "points": "10",
@@ -37,7 +37,7 @@ m_burds = [
         "points": "15",
     },
     {
-        "name": "White-breasted Waterhen",
+        "name": "White breasted Waterhen",
         "scientific": "Amaurornis phoenicurus",
         "rarity": "F",
         "points": "15",
@@ -68,25 +68,25 @@ m_burds = [
         "points": "30",
     },
     {
-        "name": "White-bellied Sea Eagle",
+        "name": "White bellied Sea Eagle",
         "scientific": "Haliaeetus leucogaster",
         "rarity": "D",
         "points": "35",
     },
     {
-        "name": "Pink-nicked Green-Pigeon",
+        "name": "Pink necked Green Pigeon",
         "scientific": "Treron vernans",
         "rarity": "D",
         "points": "30",
     },
     {
-        "name": "Stork-billed Kingfisher",
+        "name": "Stork billed Kingfisher",
         "scientific": "Pelargopsis capensis",
         "rarity": "D",
         "points": "40",
     },
     {
-        "name": "Blue-tailed Bee-eater",
+        "name": "Blue tailed Bee eater",
         "scientific": "Merops philippinus",
         "rarity": "D",
         "points": "30",
@@ -98,13 +98,13 @@ m_burds = [
         "points": "45",
     },
     {
-        "name": "Large-tailed Nightjar",
+        "name": "Large tailed Nightjar",
         "scientific": "Caprimulgus macrurus",
         "rarity": "D",
         "points": "40",
     },
     {
-        "name": "Greater Racket-tailed Drongo",
+        "name": "Greater Racket tailed Drongo",
         "scientific": "Dicrurus paradiseus",
         "rarity": "D",
         "points": "35",
@@ -129,7 +129,7 @@ m_burds = [
         "points": "75",
     },
     {
-        "name": "Blue-winged Pitta",
+        "name": "Blue winged Pitta",
         "scientific": "Pitta moluccensis",
         "rarity": "C",
         "points": "80",
@@ -141,7 +141,7 @@ m_burds = [
         "points": "75",
     },
     {
-        "name": "Rufous-collared Kingfisher",
+        "name": "Rufous collared Kingfisher",
         "scientific": "Actenoides concretus",
         "rarity": "C",
         "points": "85",
@@ -177,14 +177,14 @@ m_burds = [
         "points": "70",
     },
     {
-        "name": "Chestnut-capped Laughingthrush",
+        "name": "Chestnut capped Laughingthrush",
         "scientific": "Pterorhinus mitratus",
         "rarity": "C",
         "points": "70",
     },
     # B tier
     {
-        "name": "Silver-eared Mesia",
+        "name": "Silver eared Mesia",
         "scientific": "Leiothrix argentauris",
         "rarity": "B",
         "points": "150",
@@ -196,7 +196,7 @@ m_burds = [
         "points": "180",
     },
     {
-        "name": "Common Green-Magpie",
+        "name": "Common Green Magpie",
         "scientific": "Cissa chinensis",
         "rarity": "B",
         "points": "160",
@@ -208,25 +208,25 @@ m_burds = [
         "points": "140",
     },
     {
-        "name": "Fire-tufted Barbet",
+        "name": "Fire tufted Barbet",
         "scientific": "Ixos mcclellandii",
         "rarity": "B",
         "points": "155",
     },
     {
-        "name": "Red-headed Trogon",
+        "name": "Red headed Trogon",
         "scientific": "Harpactes erythrocephalus",
         "rarity": "B",
         "points": "175",
     },
     {
-        "name": "Black-and-crimson Oriole",
+        "name": "Black and crimson Oriole",
         "scientific": "Oriolus cruentus",
         "rarity": "B",
         "points": "150",
     },
     {
-        "name": "Grey-throated Babbler",
+        "name": "Grey throated Babbler",
         "scientific": "Stachyris nigrisceps",
         "rarity": "B",
         "points": "130",
@@ -251,7 +251,7 @@ m_burds = [
         "points": "400",
     },
     {
-        "name": "Mountain Peacock-Pheasant",
+        "name": "Mountain Peacock Pheasant",
         "scientific": "Polyplectron inopinatum",
         "rarity": "A",
         "points": "450",
@@ -269,7 +269,7 @@ m_burds = [
         "points": "480",
     },
     {
-        "name": "Malayan Peacock-Pheasant",
+        "name": "Malayan Peacock Pheasant",
         "scientific": "Polyplectron malacense",
         "rarity": "A",
         "points": "460",
@@ -287,7 +287,7 @@ m_burds = [
         "points": "380",
     },
     {
-        "name": "Jambu Fruit-Dove",
+        "name": "Jambu Fruit Dove",
         "scientific": "Ramphiculus jambu",
         "rarity": "A",
         "points": "390",
@@ -299,14 +299,14 @@ m_burds = [
         "points": "470",
     },
     {
-        "name": "Straw-headed Bulbul",
+        "name": "Straw headed Bulbul",
         "scientific": "Pycnonotus zeylanicus",
         "rarity": "A",
         "points": "410",
     },
     # S tier
     {
-        "name": "Malayan Rail-babbler",
+        "name": "Malayan Rail babbler",
         "scientific": "Eupetes Macrocerus",
         "rarity": "S",
         "points": "1000",
@@ -318,7 +318,7 @@ m_burds = [
         "points": "1200",
     },
     {
-        "name": "White-winged Duck",
+        "name": "White winged Duck",
         "scientific": "Cairina scutulata",
         "rarity": "S",
         "points": "1500",
@@ -330,7 +330,7 @@ m_burds = [
         "points": "950",
     },
     {
-        "name": "Great-billed Heron",
+        "name": "Great billed Heron",
         "scientific": "Ardea sumatrana",
         "rarity": "S",
         "points": "900",
@@ -342,13 +342,13 @@ m_burds = [
         "points": "1100",
     },
     {
-        "name": "Storm's Stork",
+        "name": "Storms Stork",
         "scientific": "Ciconia stormi",
         "rarity": "S",
         "points": "1300",
     },
     {
-        "name": "Spoon-billed Sandpiper",
+        "name": "Spoon billed Sandpiper",
         "scientific": "Calidris pygmaea",
         "rarity": "S",
         "points": "2000",
@@ -365,5 +365,4 @@ m_burds = [
         "rarity": "S",
         "points": "1400",
     },
-    # SSS tier
 ]
