@@ -15,7 +15,15 @@ from places import pm_places
 W, H = 960, 600
 FPS = 60
 WHITE = (255, 255, 255)
-BASE_D = os.path.dirname(os.path.abspath(__file__))
+def resource_path(*parts):
+    base = getattr(sys, "_MEIPASS", os.path.dirname(os.path.abspath(__file__)))
+    return os.path.join(base, *parts)
+
+
+def save_dir():
+    if getattr(sys, "frozen", False):
+        return os.path.dirname(sys.executable)
+    return os.path.dirname(os.path.abspath(__file__))
 
 pygame.init()
 screen = pygame.display.set_mode((W, H))
@@ -45,11 +53,11 @@ def draw_txt(surf, txt, ft, color, pos, anchor="topleft", max_w=None):
 
 
 # map setting
-MAP_F = os.path.join(BASE_D, "map.png")
 MAP_X, MAP_Y, MAP_H = 270, 100, 480
-
-BURD_IMG_DIR = os.path.join(BASE_D, "Birds")
-BG_IMG_DIR = os.path.join(BASE_D, "MAP")
+MAP_F = resource_path("map.png")
+BURD_IMG_DIR = resource_path("Birds")
+BG_IMG_DIR = resource_path("MAP")
+SAVE_F = os.path.join(save_dir(), "save.json")
 
 
 # 1 clickable marker/state
@@ -91,7 +99,7 @@ RARITY_C = {
 HUNT_T = 40  # second/hunt
 BURD_R = 22  # bird circle on hunting screen
 HIT_R = BURD_R + 8  # how close for click
-SAVE_F = os.path.join(BASE_D, "save.json")
+SAVE_F = os.path.join(save_dir(), "save.json")
 REP_FACT = 0.5  # if a bird has been photo'd before coins = 0.5
 LUCK_C = 3.0  # maxed luck
 
@@ -924,5 +932,4 @@ while True:
         (180, 210, 190),
         (W - 180, H - 30),
     )
-
     pygame.display.flip()
